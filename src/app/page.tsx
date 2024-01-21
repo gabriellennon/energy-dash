@@ -1,6 +1,5 @@
 "use client"
 import { Bar, Line } from 'react-chartjs-2';
-import { faker } from '@faker-js/faker';
 import {
   Chart as ChartJS,
   LineElement,
@@ -28,6 +27,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import { useCallback, useEffect, useState } from 'react';
+import { getMeasurement } from '@/services/measurement.service';
+import { TMeasurementEnergyObject } from '@/utils/types';
+import { ConsumptionBarChart } from '@/components/consumptionBarChart';
 
 
 ChartJS.register(
@@ -44,32 +47,8 @@ ChartJS.register(
 );
 
 export default function Home() {
-  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: 'Dataset 1',
-        data: labels.map(() => faker.number.int({ min: 0, max: 1000 })),
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-      },
-      {
-        label: 'Dataset 2',
-        data: labels.map(() => faker.number.int({ min: 0, max: 1000 })),
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      }
-    },
-  };
+  const [measurementData, setMeasurementData] = useState<TMeasurementEnergyObject[] | []>([]);
+  const [isLoading, setLoading] = useState(false);
 
   // @TO-DO: Ver como posso desabilitar as linhas verticais
   const optionsLine = {
@@ -80,23 +59,20 @@ export default function Home() {
         display: false
       }
     },
-    scales: {
-      yAxes: [{
-          ticks: {
-              // max: 3,
-              // min: 1,
-              // stepSize: 1,
-              callback: function(label: any, index: any, labels: any) {
-                  switch (label) {
-                      case 0:
-                          return `${label} (MWh)`;
-                      default:
-                        return `${label} (MWh)`;
-                  }
-              }
-          }
-      }],
-    }
+    // scales: {
+    //   yAxes: [{
+    //       ticks: {
+    //           callback: function(label: any, index: any, labels: any) {
+    //               switch (label) {
+    //                   case 0:
+    //                       return `${label} (MWh)`;
+    //                   default:
+    //                     return `${label} (MWh)`;
+    //               }
+    //           }
+    //       }
+    //   }],
+    // }
   };
 
   // @TO-DO: Pegar isso dinamicamente
@@ -112,13 +88,34 @@ export default function Home() {
     }]
   }
 
+  const getMeasurementData = useCallback(() => {
+    setLoading(true);
+    getMeasurement().then((response) => {
+      setMeasurementData(response.data);
+      localStorage.setItem('@MeasurementData', JSON.stringify(response.data));
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally(() => {
+      setLoading(false);
+    })
+  },[])
+
+  useEffect(() => {
+    const measurementDataStorage = localStorage.getItem('@MeasurementData');
+
+    if(measurementDataStorage){
+      setMeasurementData(JSON.parse(measurementDataStorage))
+    } getMeasurementData()
+  }, [getMeasurementData])
+
   return (
     <main className="flex min-h-screen flex-col items-start p-5 bg-slate-200">
       <div>
         <h1>Dashboard</h1>
         <p>Informações baseadas nos dados de mediações colhidos na CCEE.</p>
       </div>
-      {/* <Line data={data} options={options}></Line> */}
       <section className="flex-1 space-y-4 pt-4">
         <div className='p-2 grid gap-4 grid-cols-2'>
           <Card>
@@ -129,7 +126,11 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent className="pl-2">
-              <Bar data={data} options={options} />
+              {isLoading ? (
+                <div>carregando</div>
+              ): (
+                <ConsumptionBarChart measurementData={measurementData} />
+              )}
             </CardContent>
           </Card>
           <Card>
@@ -140,7 +141,14 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Bar data={data} options={options} />
+              {isLoading ? (
+                <div>carregando</div>
+              ): (
+                <Line 
+                  data={dataLineChat} 
+                  options={optionsLine} 
+                />
+              )}
             </CardContent>
           </Card>
         </div>
@@ -150,10 +158,14 @@ export default function Home() {
               <CardTitle>Medição Histórica (Última Semana)</CardTitle>
             </CardHeader>
             <CardContent className='max-h-72'>
-              <Line 
-                data={dataLineChat} 
-                options={optionsLine} 
-              />
+            {isLoading ? (
+                <div>carregando</div>
+              ): (
+                <Line 
+                  data={dataLineChat} 
+                  options={optionsLine} 
+                />
+              )}
             </CardContent>
           </Card>
         </div>
@@ -170,25 +182,31 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent className='max-h-72'>
-              <MeasurementTable />
-              <div className='mt-3'>
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious href="#" />
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink href="#">1</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationNext href="#" />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
+            {isLoading ? (
+                <div>carregando</div>
+              ): (
+                <>
+                  <MeasurementTable />
+                  <div className='mt-3'>
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious href="#" />
+                        </PaginationItem>
+                        <PaginationItem>
+                          <PaginationLink href="#">1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                        <PaginationItem>
+                          <PaginationNext href="#" />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

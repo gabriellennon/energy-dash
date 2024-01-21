@@ -1,0 +1,46 @@
+{
+    "measurement": [
+        {
+            "id": "6ca9116e-1751-4b8f-b716-a3f12632d13a",
+            "reference": "31/12/2022",
+            "year": 2022,
+            "month": 12,
+            "day": 31,
+            "hour": 1,
+            "consumption": 107.782849,
+            "agent": "E-STATION",
+            "meter": "STSTSTSTSTSTST",
+            "origin": "COLETA DIÁRIA",
+            "intervalInMinutes": 60,
+            "isEstimated": false
+        },
+        {
+            "id": "9aswd98a-1751-4b8f-b716-a8ja2632d13a",
+            "reference": "20/11/2021",
+            "year": 2021,
+            "month": 11,
+            "day": 20,
+            "hour": 1,
+            "consumption": 80,
+            "agent": "E-STATION",
+            "meter": "STSTSTSTSTSTST",
+            "origin": "COLETA DIÁRIA",
+            "intervalInMinutes": 60,
+            "isEstimated": false
+        },
+        {
+            "id": "asvn12f6-1751-4b8f-b716-b3g12632d13a",
+            "reference": "31/12/2021",
+            "year": 2021,
+            "month": 12,
+            "day": 31,
+            "hour": 1,
+            "consumption": 80,
+            "agent": "E-STATION",
+            "meter": "STSTSTSTSTSTST",
+            "origin": "COLETA DIÁRIA",
+            "intervalInMinutes": 60,
+            "isEstimated": false
+        }
+    ]
+}
