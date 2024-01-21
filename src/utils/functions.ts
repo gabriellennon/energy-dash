@@ -2,6 +2,8 @@ import { faker } from '@faker-js/faker';
 import { eachDayOfInterval, getDaysInMonth, subWeeks } from 'date-fns';
 import { format } from 'date-fns'; 
 import { ptBR } from 'date-fns/locale';
+import { TMeasurementEnergyObject, TMeasurementLineChartProps } from './types';
+import { DateRange } from 'react-day-picker';
 
 export function getRandomColor() {
     const letters = '0123456789ABCDEF';
@@ -122,4 +124,12 @@ export function lastWeekDates(){
     formattedMontAndDaysDates,
     formattedFullDates
   };
+}
+
+export function filterByDateRange(arrayData: any, rangeDates: DateRange) {
+  return arrayData.filter((item: any) => {
+    const parts = item.reference.split('/');
+    const itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T03:00:00.000Z`);
+    return itemDate >= rangeDates.from! && itemDate < rangeDates.to!;
+  });
 }

@@ -28,3 +28,13 @@ export type TGroupedConsumptionPerYear = {
 export type TMeasurementLineChartProps = {
   measurementData: TMeasurementEnergyObject[];
 }
+
+export type TMeasurementColumns = {
+  id: string;
+  agent: string;
+  meter: string;
+  reference: string;
+  hour: string;
+  consumption: string;
+  origin: string;
+}

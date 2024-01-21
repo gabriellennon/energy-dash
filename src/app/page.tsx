@@ -9,23 +9,14 @@ import {
   Legend,
   Tooltip,
   Filler,
-  ChartConfiguration,
   BarElement,
   BarController
 } from "chart.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DateRangePicker } from '@/components/dateRangePicker';
 import { MeasurementTable } from '@/components/measurementTable';
+import { XCircle } from 'lucide-react'
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getMeasurement } from '@/services/measurement.service';
 import { TMeasurementEnergyObject } from '@/utils/types';
@@ -33,8 +24,11 @@ import { ConsumptionBarChart } from '@/components/consumptionBarChart';
 import { MeasurementDayLineChart } from '@/components/measurementDayLineChart';
 import { MeasurementWeekLineChart } from '@/components/measurementWeekLineChart';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { arrayYears, findLabelMonth, generateDaysOfMonth, getCurrentNumberMonth, months } from '@/utils/functions';
-import { getDay, getMonth, getYear } from "date-fns";
+import { arrayYears, filterByDateRange, generateDaysOfMonth, getCurrentNumberMonth, months } from '@/utils/functions';
+import { getYear } from "date-fns";
+import { columnsTable } from "@/components/columnsTable";
+import { DateRange } from "react-day-picker";
+import { Button } from "@/components/ui/button";
 
 
 ChartJS.register(
@@ -52,12 +46,35 @@ ChartJS.register(
 
 export default function Home() {
   const [measurementData, setMeasurementData] = useState<TMeasurementEnergyObject[] | []>([]);
+  const [measurementDataFilteresPerDate, setMeasurementDataFilteresPerDate] = useState<TMeasurementEnergyObject[] | []>([]);
   const [isLoading, setLoading] = useState(false);
   const [filterMeasurementPerDay, setFilterMeasurementPerDay] = useState({
     day: new Date().getDate(),
     month: Number(getCurrentNumberMonth()),
     year: getYear(new Date())
   })
+
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: undefined,
+    to: undefined,
+  })
+
+  const handleFilterDataDate = () => {
+    const dataFiltered = filterByDateRange(measurementData, dateRange!)
+    setMeasurementDataFilteresPerDate(dataFiltered)
+  }
+
+  const handleClearSearch = () => {
+    setMeasurementDataFilteresPerDate([]);
+    setDateRange({
+      from: undefined,
+      to: undefined,
+    })
+  }
+
+  const handleDateRangeChange = (from: Date | undefined, to: Date | undefined) => {
+    setDateRange({ from, to });
+  };
 
   const getMeasurementData = useCallback(() => {
     setLoading(true);
@@ -217,37 +234,35 @@ export default function Home() {
               <CardTitle>
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-bold">Medições</h2>
-                  <div className="flex items-center space-x-2">
-                    <DateRangePicker />
+                  <div className="flex items-center gap-2">
+                    <DateRangePicker 
+                      dateRange={dateRange} 
+                      onDateRangeChange={handleDateRangeChange}
+                      lang="pt" 
+                    />
+                    <Button
+                      size="sm" 
+                      variant="secondary"
+                      className="w-24"
+                      onClick={measurementDataFilteresPerDate.length ? handleClearSearch : handleFilterDataDate}
+                      disabled={!dateRange?.from && !dateRange?.to}
+                    >
+                      {measurementDataFilteresPerDate.length ? (
+                        <XCircle className="h-4 w-4" />
+                      ): (<>Aplicar</>)}
+                    </Button>
                   </div>
                 </div>
               </CardTitle>
             </CardHeader>
-            <CardContent className='max-h-72'>
-            {isLoading ? (
+            <CardContent>
+              {isLoading ? (
                 <div>carregando</div>
               ): (
-                <>
-                  <MeasurementTable />
-                  <div className='mt-3'>
-                    <Pagination>
-                      <PaginationContent>
-                        <PaginationItem>
-                          <PaginationPrevious href="#" />
-                        </PaginationItem>
-                        <PaginationItem>
-                          <PaginationLink href="#">1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                        <PaginationItem>
-                          <PaginationNext href="#" />
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
-                  </div>
-                </>
+                <MeasurementTable 
+                  columns={columnsTable} 
+                  data={measurementDataFilteresPerDate.length ? measurementDataFilteresPerDate : measurementData} 
+                />
               )}
             </CardContent>
           </Card>
