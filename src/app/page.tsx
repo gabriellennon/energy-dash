@@ -29,6 +29,7 @@ import { getYear } from "date-fns";
 import { columnsTable } from "@/components/columnsTable";
 import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 ChartJS.register(
@@ -144,7 +145,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="pl-2">
               {isLoading ? (
-                <div>carregando</div>
+                <Skeleton className="mx-3 h-56 w-full" />
               ): (
                 <ConsumptionBarChart measurementData={measurementData} />
               )}
@@ -159,7 +160,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div>carregando</div>
+                <Skeleton className="mx-3 h-56 w-full" />
               ): (
                 <div className='flex flex-col'>
                   <div className="flex flex-row items-center gap-4 mb-4">
@@ -221,7 +222,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className='max-h-72'>
             {isLoading ? (
-                <div>carregando</div>
+                <Skeleton className="mx-3 h-56 w-full" />
               ): (
                 <MeasurementWeekLineChart measurementData={measurementData} />
               )}
@@ -234,30 +235,40 @@ export default function Home() {
               <CardTitle>
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-bold">Medições</h2>
-                  <div className="flex items-center gap-2">
-                    <DateRangePicker 
-                      dateRange={dateRange} 
-                      onDateRangeChange={handleDateRangeChange}
-                      lang="pt" 
-                    />
-                    <Button
-                      size="sm" 
-                      variant="secondary"
-                      className="w-24"
-                      onClick={measurementDataFilteresPerDate.length ? handleClearSearch : handleFilterDataDate}
-                      disabled={!dateRange?.from && !dateRange?.to}
-                    >
-                      {measurementDataFilteresPerDate.length ? (
-                        <XCircle className="h-4 w-4" />
-                      ): (<>Aplicar</>)}
-                    </Button>
-                  </div>
+                  {isLoading ? (
+                    <Skeleton className="mx-3 h-7 w-52" />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <DateRangePicker 
+                        dateRange={dateRange} 
+                        onDateRangeChange={handleDateRangeChange}
+                        lang="pt" 
+                      />
+                      <Button
+                        size="sm" 
+                        variant="secondary"
+                        className="w-24"
+                        onClick={measurementDataFilteresPerDate.length ? handleClearSearch : handleFilterDataDate}
+                        disabled={!dateRange?.from && !dateRange?.to}
+                      >
+                        {measurementDataFilteresPerDate.length ? (
+                          <XCircle className="h-4 w-4" />
+                        ): (<>Aplicar</>)}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div>carregando</div>
+                <div className="flex flex-col gap-2">
+                  <Skeleton className="mx-3 h-9 w-full" />
+                  <Skeleton className="mx-3 h-9 w-full" />
+                  <Skeleton className="mx-3 h-9 w-full" />
+                  <Skeleton className="mx-3 h-9 w-full" />
+                  <Skeleton className="mx-3 h-9 w-full" />
+                </div>
               ): (
                 <MeasurementTable 
                   columns={columnsTable} 
