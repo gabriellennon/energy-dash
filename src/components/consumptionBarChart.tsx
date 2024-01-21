@@ -1,16 +1,17 @@
 import { generateConsumptionByYear, getRandomColor } from '@/utils/functions';
 import { TGroupedConsumptionPerYear, TMeasurementEnergyObject } from '@/utils/types';
+import { useCallback, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 
 type TConsumptionBarChartProps = {
-    measurementData: TMeasurementEnergyObject[];
+  measurementData: TMeasurementEnergyObject[];
 }
 
 export const ConsumptionBarChart = ({ measurementData }: TConsumptionBarChartProps) => {
-    const labels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const labels = useMemo(() => ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'], [])
 
-    function generateYearsConsumption() {
-        const groupedConsumptionPerYear: TGroupedConsumptionPerYear = {};
+    const generateYearsConsumption = useCallback(() => {
+      const groupedConsumptionPerYear: TGroupedConsumptionPerYear = {};
     
         measurementData.forEach((measurement) => {
           const year = measurement.year;
@@ -35,21 +36,21 @@ export const ConsumptionBarChart = ({ measurementData }: TConsumptionBarChartPro
         }));
     
         return result;
-    }
+    }, [labels, measurementData])
 
     const data = {
-        labels,
-        datasets: generateYearsConsumption(),
+      labels,
+      datasets: generateYearsConsumption(),
     };
 
 
     const options = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top' as const,
-            }
-        },
+      responsive: true,
+      plugins: {
+          legend: {
+              position: 'top' as const,
+          }
+      },
     };
 
     return (

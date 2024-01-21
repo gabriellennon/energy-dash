@@ -1,5 +1,4 @@
 "use client"
-import { Bar, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   LineElement,
@@ -27,10 +26,15 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getMeasurement } from '@/services/measurement.service';
 import { TMeasurementEnergyObject } from '@/utils/types';
 import { ConsumptionBarChart } from '@/components/consumptionBarChart';
+import { MeasurementDayLineChart } from '@/components/measurementDayLineChart';
+import { MeasurementWeekLineChart } from '@/components/measurementWeekLineChart';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { arrayYears, findLabelMonth, generateDaysOfMonth, getCurrentNumberMonth, months } from '@/utils/functions';
+import { getDay, getMonth, getYear } from "date-fns";
 
 
 ChartJS.register(
@@ -49,44 +53,11 @@ ChartJS.register(
 export default function Home() {
   const [measurementData, setMeasurementData] = useState<TMeasurementEnergyObject[] | []>([]);
   const [isLoading, setLoading] = useState(false);
-
-  // @TO-DO: Ver como posso desabilitar as linhas verticais
-  const optionsLine = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false
-      }
-    },
-    // scales: {
-    //   yAxes: [{
-    //       ticks: {
-    //           callback: function(label: any, index: any, labels: any) {
-    //               switch (label) {
-    //                   case 0:
-    //                       return `${label} (MWh)`;
-    //                   default:
-    //                     return `${label} (MWh)`;
-    //               }
-    //           }
-    //       }
-    //   }],
-    // }
-  };
-
-  // @TO-DO: Pegar isso dinamicamente
-  const lastWeekDays = ["20/12", "19/12", "17/12", "16/12", "15/12", "14/12", "12/12"];
-
-  const dataLineChat = {
-    labels: lastWeekDays,
-    datasets: [{
-      data: [120,80,104,96,88,90,80],
-      fill: false,
-      borderColor: 'rgb(51, 62, 158)',
-      tension: 0.1
-    }]
-  }
+  const [filterMeasurementPerDay, setFilterMeasurementPerDay] = useState({
+    day: new Date().getDate(),
+    month: Number(getCurrentNumberMonth()),
+    year: getYear(new Date())
+  })
 
   const getMeasurementData = useCallback(() => {
     setLoading(true);
@@ -102,9 +73,38 @@ export default function Home() {
     })
   },[])
 
+  const filterMonthMeasurement = useMemo(() => {
+    const { month, year } = filterMeasurementPerDay;
+    return generateDaysOfMonth(year, month)
+  }, [filterMeasurementPerDay])
+
+  const setFilterMeasurementPerDaySelect = useCallback((value: string, property: 'day' | 'month' | 'year') => {
+    switch (property) {
+      case 'day':
+        setFilterMeasurementPerDay({ ...filterMeasurementPerDay, day: Number(value)})
+        break;
+      case 'month':
+        setFilterMeasurementPerDay({ ...filterMeasurementPerDay, month: Number(value)})
+        break;
+      case 'year':
+        setFilterMeasurementPerDay({ ...filterMeasurementPerDay, year: Number(value)})
+        break;
+    
+      default:
+        break;
+    }
+    
+  }, [filterMeasurementPerDay]);
+
+  const showDataMeasurementPerDate = useCallback(() => {
+    const { day, month, year } = filterMeasurementPerDay;
+    const fullDate = `${day}/${month}/${year}`;
+    const filterData = measurementData.filter(data => data.reference === fullDate);
+    return filterData;
+  },[filterMeasurementPerDay, measurementData])
+
   useEffect(() => {
     const measurementDataStorage = localStorage.getItem('@MeasurementData');
-
     if(measurementDataStorage){
       setMeasurementData(JSON.parse(measurementDataStorage))
     } getMeasurementData()
@@ -135,19 +135,64 @@ export default function Home() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Recent Sales</CardTitle>
-              <CardDescription>
-                You made 265 sales this month.
+              <CardTitle>Medição Horária (Por dia)</CardTitle>
+              <CardDescription className="text-xs">
+                Lembre-se: Há meses que não possuem 31 dias.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {isLoading ? (
                 <div>carregando</div>
               ): (
-                <Line 
-                  data={dataLineChat} 
-                  options={optionsLine} 
-                />
+                <div className='flex flex-col'>
+                  <div className="flex flex-row items-center gap-4 mb-4">
+                    <Select 
+                      defaultValue={filterMeasurementPerDay.day.toString()}
+                      onValueChange={(value) =>setFilterMeasurementPerDaySelect(value, 'day')}
+                    >
+                        <SelectTrigger className="w-[100px]">
+                            <SelectValue placeholder="Dia" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {filterMonthMeasurement.map((value, index) => (
+                            <SelectItem 
+                              key={index} 
+                              value={String(value)}
+                            >
+                              {value}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                    </Select>
+                    <Select
+                      defaultValue={filterMeasurementPerDay.month.toString()}
+                      onValueChange={(value) =>setFilterMeasurementPerDaySelect(value, 'month')}
+                    >
+                        <SelectTrigger className="w-[100px]">
+                            <SelectValue placeholder="Mês" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {months.map(month => (
+                            <SelectItem key={month.number} value={month.number.toString()}>{month.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                    </Select>
+                    <Select
+                      defaultValue={filterMeasurementPerDay.year.toString()}
+                      onValueChange={(value) =>setFilterMeasurementPerDaySelect(value, 'year')}
+                    >
+                        <SelectTrigger className="w-[100px]">
+                            <SelectValue placeholder="Mês" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {arrayYears().map(year => (
+                            <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                          ))}
+                        </SelectContent>
+                    </Select>
+                  </div>
+                  <MeasurementDayLineChart measurementData={showDataMeasurementPerDate()} />
+                </div>
               )}
             </CardContent>
           </Card>
@@ -161,10 +206,7 @@ export default function Home() {
             {isLoading ? (
                 <div>carregando</div>
               ): (
-                <Line 
-                  data={dataLineChat} 
-                  options={optionsLine} 
-                />
+                <MeasurementWeekLineChart />
               )}
             </CardContent>
           </Card>
