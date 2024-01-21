@@ -116,6 +116,10 @@ export default function Home() {
     
   }, [filterMeasurementPerDay]);
 
+  const handleRefetch = () => {
+    getMeasurementData();
+  }
+
   const showDataMeasurementPerDate = useCallback(() => {
     const { day, month, year } = filterMeasurementPerDay;
     const fullDate = `${day}/${month}/${year}`;
@@ -156,7 +160,7 @@ export default function Home() {
                 <div className="flex flex-col gap-2 items-center justify-center w-full">
                   <h3>Ops 😵‍💫</h3>
                   <p>Algo está errado. Tente novamente!</p>
-                  <Button>Recarregar</Button>
+                  <Button onClick={handleRefetch}>Recarregar</Button>
                 </div>
               )}
             </CardContent>
@@ -227,7 +231,7 @@ export default function Home() {
                 <div className="flex flex-col gap-2 items-center justify-center w-full">
                   <h3>Ops 😵‍💫</h3>
                   <p>Algo está errado. Tente novamente!</p>
-                  <Button>Recarregar</Button>
+                  <Button onClick={handleRefetch}>Recarregar</Button>
                 </div>
               )}
             </CardContent>
@@ -249,7 +253,7 @@ export default function Home() {
                 <div className="flex flex-col gap-2 items-center justify-center w-full">
                   <h3>Ops 😵‍💫</h3>
                   <p>Algo está errado. Tente novamente!</p>
-                  <Button>Recarregar</Button>
+                  <Button onClick={handleRefetch}>Recarregar</Button>
                 </div>
               )}
             </CardContent>
