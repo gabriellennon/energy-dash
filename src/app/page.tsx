@@ -49,6 +49,7 @@ export default function Home() {
   const [measurementData, setMeasurementData] = useState<TMeasurementEnergyObject[] | []>([]);
   const [measurementDataFilteresPerDate, setMeasurementDataFilteresPerDate] = useState<TMeasurementEnergyObject[] | []>([]);
   const [isLoading, setLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [filterMeasurementPerDay, setFilterMeasurementPerDay] = useState({
     day: new Date().getDate(),
     month: Number(getCurrentNumberMonth()),
@@ -84,6 +85,7 @@ export default function Home() {
       localStorage.setItem('@MeasurementData', JSON.stringify(response.data));
     })
     .catch((error) => {
+      setIsError(true)
       console.log(error);
     })
     .finally(() => {
@@ -135,7 +137,7 @@ export default function Home() {
         <p>Informações baseadas nos dados de mediações colhidos na CCEE.</p>
       </div>
       <section className="flex-1 space-y-4 pt-4">
-        <div className='p-2 grid gap-4 grid-cols-2'>
+        <div className='p-2 grid gap-4 md:grid-cols-2'>
           <Card>
             <CardHeader>
               <CardTitle>Consumo Anual (2021/2022)</CardTitle>
@@ -144,10 +146,18 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent className="pl-2">
-              {isLoading ? (
+              {isLoading && (
                 <Skeleton className="mx-3 h-56 w-full" />
-              ): (
+              )}
+              {!isLoading && !isError && (
                 <ConsumptionBarChart measurementData={measurementData} />
+              )}
+              {!isLoading && isError && (
+                <div className="flex flex-col gap-2 items-center justify-center w-full">
+                  <h3>Ops 😵‍💫</h3>
+                  <p>Algo está errado. Tente novamente!</p>
+                  <Button>Recarregar</Button>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -159,9 +169,10 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
+              {isLoading && (
                 <Skeleton className="mx-3 h-56 w-full" />
-              ): (
+              )} 
+              {!isLoading && !isError && (
                 <div className='flex flex-col'>
                   <div className="flex flex-row items-center gap-4 mb-4">
                     <Select 
@@ -212,6 +223,13 @@ export default function Home() {
                   <MeasurementDayLineChart measurementData={showDataMeasurementPerDate()} />
                 </div>
               )}
+              {!isLoading && isError && (
+                <div className="flex flex-col gap-2 items-center justify-center w-full">
+                  <h3>Ops 😵‍💫</h3>
+                  <p>Algo está errado. Tente novamente!</p>
+                  <Button>Recarregar</Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -221,10 +239,18 @@ export default function Home() {
               <CardTitle>Medição Histórica (Última Semana)</CardTitle>
             </CardHeader>
             <CardContent className='max-h-72'>
-            {isLoading ? (
+            {isLoading && (
                 <Skeleton className="mx-3 h-56 w-full" />
-              ): (
+              )} 
+              {!isLoading && !isError && (
                 <MeasurementWeekLineChart measurementData={measurementData} />
+              )}
+              {!isLoading && isError && (
+                <div className="flex flex-col gap-2 items-center justify-center w-full">
+                  <h3>Ops 😵‍💫</h3>
+                  <p>Algo está errado. Tente novamente!</p>
+                  <Button>Recarregar</Button>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -235,9 +261,10 @@ export default function Home() {
               <CardTitle>
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-bold">Medições</h2>
-                  {isLoading ? (
+                  {isLoading && (
                     <Skeleton className="mx-3 h-7 w-52" />
-                  ) : (
+                  )} 
+                  {!isLoading && !isError && (
                     <div className="flex items-center gap-2">
                       <DateRangePicker 
                         dateRange={dateRange} 
@@ -261,7 +288,7 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
+              {isLoading && (
                 <div className="flex flex-col gap-2">
                   <Skeleton className="mx-3 h-9 w-full" />
                   <Skeleton className="mx-3 h-9 w-full" />
@@ -269,7 +296,8 @@ export default function Home() {
                   <Skeleton className="mx-3 h-9 w-full" />
                   <Skeleton className="mx-3 h-9 w-full" />
                 </div>
-              ): (
+              )}
+              {!isLoading && !isError && (
                 <MeasurementTable 
                   columns={columnsTable} 
                   data={measurementDataFilteresPerDate.length ? measurementDataFilteresPerDate : measurementData} 

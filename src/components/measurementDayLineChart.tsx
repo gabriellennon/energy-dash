@@ -43,7 +43,6 @@ export const MeasurementDayLineChart = ({ measurementData }: TMeasurementLineCha
     if(!measurementData.length){
         return (
             <div className='border-t pt-5 text-center'>
-                <span className='font-medium text-lg'>Ops 😵</span>
                 <p>
                     Sem dados de consumo para a data selecionada 
                 </p>
