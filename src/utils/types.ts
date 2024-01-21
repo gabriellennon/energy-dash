@@ -15,12 +15,16 @@ export type TMeasurementEnergyObject = {
 }
 
 type TConsumptionPerYearObject = {
-    measurements: TMeasurementEnergyObject[];
-    consumptionsByMonth: {
-      [year: string]: number[];
-    };
+  measurements: TMeasurementEnergyObject[];
+  consumptionsByMonth: {
+    [year: string]: number[];
   };
+};
 
 export type TGroupedConsumptionPerYear = {
-    [year: string]: TConsumptionPerYearObject;
+  [year: string]: TConsumptionPerYearObject;
+}
+
+export type TMeasurementLineChartProps = {
+  measurementData: TMeasurementEnergyObject[];
 }

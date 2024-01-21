@@ -206,7 +206,7 @@ export default function Home() {
             {isLoading ? (
                 <div>carregando</div>
               ): (
-                <MeasurementWeekLineChart />
+                <MeasurementWeekLineChart measurementData={measurementData} />
               )}
             </CardContent>
           </Card>

@@ -1,12 +1,8 @@
-import { TMeasurementEnergyObject } from '@/utils/types';
+import { TMeasurementLineChartProps } from '@/utils/types';
 import { useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 
-type TMeasurementDayLineChartProps = {
-    measurementData: TMeasurementEnergyObject[];
-}
-
-export const MeasurementDayLineChart = ({ measurementData }: TMeasurementDayLineChartProps) => {
+export const MeasurementDayLineChart = ({ measurementData }: TMeasurementLineChartProps) => {
     const gambToShowMeasurementNumberScaleY = ["", "", "", "", "", "", ""];
 
     const findAndReturnDataLineChart = useCallback(() => {

@@ -1,21 +1,34 @@
+import { lastWeekDates } from '@/utils/functions';
+import { TMeasurementLineChartProps } from '@/utils/types';
+import { useCallback, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 
-export const MeasurementWeekLineChart = () => {
-    // @TO-DO: Pegar isso dinamicamente
-    const lastWeekDays = ["20/12", "19/12", "17/12", "16/12", "15/12", "14/12", "12/12"];
+
+export const MeasurementWeekLineChart = ({ measurementData }: TMeasurementLineChartProps) => {
+    const lastWeekDays = useMemo(() => lastWeekDates().formattedMontAndDaysDates, []);
+
+    const findAndReturnDataLineChart = useCallback(() => {
+        const valuesConsumption: number[] = [];
+
+        lastWeekDates().formattedFullDates.forEach(date => {
+            const filter = measurementData.filter(value => value.reference === date);
+            valuesConsumption.push(filter.length ? filter[0].consumption : 0);
+        })
+
+        return valuesConsumption;
+    },[measurementData])
 
     const dataLineChat = {
         labels: lastWeekDays,
         datasets: [{
-            // @To-DO: Pegar dinamicamente
-            data: [120,80,104,96,88,90,80],
-            fill: false,
+            data: findAndReturnDataLineChart(),
+            fill: true,
+            backgroundColor: 'rgba(63, 73, 163, 0.123)',
             borderColor: 'rgb(51, 62, 158)',
             tension: 0.1
         }]
     }
 
-    // @TO-DO: Ver como posso desabilitar as linhas verticais
     const optionsLine = {
         responsive: true,
         maintainAspectRatio: false,
@@ -24,6 +37,11 @@ export const MeasurementWeekLineChart = () => {
                 display: false
             }
         },
+        scales: {
+            x: {
+                display: false,
+            },
+        }
     };
 
 

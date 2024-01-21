@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { getDaysInMonth } from 'date-fns';
+import { eachDayOfInterval, getDaysInMonth, subWeeks } from 'date-fns';
 import { format } from 'date-fns'; 
 import { ptBR } from 'date-fns/locale';
 
@@ -100,4 +100,26 @@ export function arrayYears(){
   const currentYear = (new Date()).getFullYear();
   const range = (start: number, stop: number, step: number) => Array.from({ length: (stop - start) / step + 1}, (_, i) => start + (i * step));
   return range(currentYear, currentYear - 50, -1); 
+}
+
+export function lastWeekDates(){
+  const today = new Date();
+
+  // Subtrai uma semana da data de hoje para obter o início da última semana
+  const lastWeekStart = subWeeks(today, 1);
+
+  // Gera um array de datas para a última semana
+  const lastWeekDates = eachDayOfInterval({
+    start: lastWeekStart,
+    end: today,
+  }).slice(0, 7); // Limita o array a 7 elementos, para me retornar apenas os 7 ultimos dias
+
+  
+  const formattedMontAndDaysDates = lastWeekDates.map(date => format(date, 'dd/MM', { locale: ptBR }));
+  const formattedFullDates = lastWeekDates.map(date => format(date, 'dd/MM/yyyy', { locale: ptBR }));
+
+  return {
+    formattedMontAndDaysDates,
+    formattedFullDates
+  };
 }
