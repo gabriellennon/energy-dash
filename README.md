@@ -1,7 +1,10 @@
 # Energy Dash
+![image](https://github.com/gabriellennon/energy-dash/assets/57332512/61257379-104a-46e9-ab0f-c26b54380f93)
 
 
 Dashboard to analyze analyze energy consumption per day, week, month or year. 
+
+- [Live Preview Front-end](https://energy-dash-sage.vercel.app/)
 
 ## Dependências
 
