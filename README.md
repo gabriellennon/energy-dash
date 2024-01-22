@@ -27,5 +27,9 @@ npm run fake-back
 
 # Run the fake front-end
 npm run dev
+
+
+# Run tests
+npm run test
 ```
 
